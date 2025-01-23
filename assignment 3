@@ -1,0 +1,125 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Definition of a node in the doubly linked list
+struct Node {
+    int data;
+    struct Node* next;
+    struct Node* prev;
+};
+
+// Function to create a new node
+struct Node* createNode(int data) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->next = NULL;
+    newNode->prev = NULL;
+    return newNode;
+}
+
+// Function to print the doubly linked list
+void printList(struct Node* head) {
+    struct Node* current = head;
+    while (current != NULL) {
+        printf("%d ", current->data);
+        current = current->next;
+    }
+    printf("\n");
+}
+
+// Function to add two numbers represented by doubly linked lists
+struct Node* addTwoLists(struct Node* list1, struct Node* list2) {
+    struct Node* result = NULL; // Resultant doubly linked list
+    struct Node* temp = NULL;   // Temporary node for result
+    int carry = 0;              // Carry for addition
+
+    // Traverse both lists from the last node
+    while (list1 != NULL || list2 != NULL || carry) {
+        int sum = carry; // Start with carry
+
+        // Add value from list1 if available
+        if (list1 != NULL) {
+            sum += list1->data;
+            list1 = list1->prev; // Move to previous node
+        }
+
+        // Add value from list2 if available
+        if (list2 != NULL) {
+            sum += list2->data;
+            list2 = list2->prev; // Move to previous node
+        }
+
+        // Update carry for next iteration
+        carry = sum / 10;
+
+        // Create a new node for the digit of the result
+        temp = createNode(sum % 10);
+        temp->next = result; // Insert at the beginning of result
+
+        if (result != NULL) {
+            result->prev = temp; // Update previous pointer of result head
+        }
+        
+        result = temp; // Update result head
+    }
+
+    return result; // Return the resultant linked list
+}
+
+// Function to free the doubly linked list
+void freeList(struct Node* head) {
+    struct Node* temp;
+    while (head != NULL) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+int main() {
+    // Creating first doubly linked list: 2 <-> 5 <-> 9 (represents 259)
+    struct Node* list1 = createNode(9);
+    list1->prev = createNode(5);
+    list1->prev->next = list1;
+    list1->prev->prev = createNode(2);
+    list1->prev->prev->next = list1->prev;
+
+    // Creating second doubly linked list: 3 <-> 8 <-> 1 (represents 381)
+    struct Node* list2 = createNode(1);
+    list2->prev = createNode(8);
+    list2->prev->next = list2;
+    list2->prev->prev = createNode(3);
+    list2->prev->prev->next = list2->prev;
+
+    // Print original lists
+    printf("List 1: ");
+    printList(list1);
+    
+    printf("List 2: ");
+    printList(list2);
+
+    // Add the two lists and get the result
+    struct Node* sumList = addTwoLists(list1, list2);
+
+    // Print the sum stored in a doubly linked list
+    printf("Sum stored in a doubly linked list: ");
+    printList(sumList);
+
+    // Print the final sum as an integer
+    printf("259 + 381 = ");
+    
+    struct Node* current = sumList;
+    while (current != NULL) {
+        printf("%d", current->data);
+        current = current->next;
+    }
+    
+    printf("\n");
+
+    // Free allocated memory
+    freeList(list1);
+    freeList(list2);
+    freeList(sumList);
+
+    return 0;
+}
